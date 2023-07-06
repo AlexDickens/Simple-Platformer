@@ -1,101 +1,110 @@
 import pygame
 from sys import exit
-
-pygame.init()
-width = 800
-height = 400
-screen = pygame.display.set_mode((width , height))
-clock = pygame.time.Clock()
-score = 0
-font = pygame.font.Font("font/Pixeltype.ttf", 50)
-gameActive = False
-
-def homeScreen():
-   
- 
-
-    screen.fill((0,153,153))
-    text1 = font.render("Alex Dickens Runner", False, (0,102,102))
-    text1_rect = text1.get_rect(center = (width * 0.5, 100))
-    
-    
-    homeImage = pygame.image.load("sprites/Player/player_walk_1.png")
-    homeImage_rect = homeImage.get_rect(center = (width * 0.5, height * 0.5))
-    restart = font.render("Press space to run", False, (0,102,102))
-    restart_rect = restart.get_rect(center = (width * 0.5, 300))
-
-    screen.blit(text1, text1_rect)
-    
-    screen.blit(homeImage, homeImage_rect)
-    screen.blit(restart, restart_rect)
+import requests
+import time
+import json
+import pyautogui
+from homeScreen import homescreen
 
 
-#scene
-sky = pygame.image.load("sprites/Sky.png").convert()
-ground = pygame.image.load("sprites/ground.png").convert()
-
-#enemy
-enemy = pygame.image.load("sprites/snail/snail1.png").convert_alpha()
-enemy_rect = enemy.get_rect(bottomleft = (700,300))
-
-#player
-player = pygame.image.load("sprites/Player/player_walk_1.png").convert_alpha()
-player_rect = player.get_rect(bottomleft = (50,300))
-playerGravity = 0
-
-
-fly = pygame.image.load("sprites/Fly/Fly1.png")
+class runner:
+    def __init__(self):
+        pygame.init()
+        self.width = 800
+        self.height = 400
+        self.screen = pygame.display.set_mode((self.width , self.height))
+        self.clock = pygame.time.Clock()
+        self.score = 0
+        self.font = pygame.font.Font("font/Pixeltype.ttf", 50)
+        self.gameActive = False
+        self.high_score = False
 
 
-while True:
 
-   
-    
-    for events in pygame.event.get():
-        if events.type == pygame.QUIT:
-            pygame.quit
-            exit()
+        self.sky = pygame.image.load("sprites/Sky.png").convert()
+        self.ground = pygame.image.load("sprites/ground.png").convert()
 
-        if events.type == pygame.KEYDOWN:
-            if events.key == pygame.K_SPACE and gameActive == True:
-                if player_rect.bottom == 300:
-                    playerGravity = -20
-            if events.key == pygame.K_SPACE and gameActive == False:
-                gameActive = True
-            
+        #enemy
+        self.enemy = pygame.image.load("sprites/snail/snail1.png").convert_alpha()
+        self.enemy_rect = self.enemy.get_rect(bottomleft = (700,300))
+
+        #player
+        self.player = pygame.image.load("sprites/Player/player_walk_1.png").convert_alpha()
+        self.player_rect = self.player.get_rect(bottomleft = (50,300))
+        self.playerGravity = 0
+
+
+        self.home = homescreen()
+
+    def game_loop(self):
+
+        while True:
+
+            self.event_loop()
+            self.render_graphics()
+
+
+            self.clock.tick(60)
+            pygame.display.update()
+
+    def event_loop(self):
+        for events in pygame.event.get():
+            if events.type == pygame.QUIT:
+                pygame.quit
+                exit()
+
+            if events.type == pygame.KEYDOWN:
+                if events.key == pygame.K_SPACE and self.gameActive == True:
+                    if self.player_rect.bottom == 300:
+                        self.playerGravity = -20
+                if events.key == pygame.K_SPACE and self.gameActive == False:
+                    self.gameActive = True
+                    self.enemy_rect.x = 800
+                    
+
+    def render_graphics(self):
+        if (self.gameActive == True):    
 
         
-        
-    if (gameActive == True):    
 
-        screen.blit(sky , (0,0))
-        screen.blit(ground, (0,300))
-        screen.blit(enemy, enemy_rect)
-        screen.blit(player, player_rect)
-
-
-        #moving snail
-        enemy_rect.x -= 4
-
-        if (enemy_rect.x < -50):
-            enemy_rect.x = 850
-
-        #allowJumping 
-        playerGravity += 1
-        player_rect.y += playerGravity
-
-        if player_rect.bottom >= 300:
-            player_rect.bottom = 300
+            self.screen.blit(self.sky , (0,0))
+            self.screen.blit(self.ground, (0,300))
+            self.screen.blit(self.enemy, self.enemy_rect)
+            self.screen.blit(self.player, self.player_rect)
+            #currentTime()
 
 
-        #collisiom
+            #moving snail
+            self.enemy_rect.x -= 4
 
-        if player_rect.colliderect(enemy_rect):
-            gameActive = False
+            if (self.enemy_rect.x < -50):
+                self.enemy_rect.x = 850
 
-    elif (gameActive == False):
-        homeScreen()
+            #allowJumping 
+            self.playerGravity += 1
+            self.player_rect.y += self.playerGravity
+
+            if self.player_rect.bottom >= 300:
+                self.player_rect.bottom = 300
 
 
-    clock.tick(60)
-    pygame.display.update()
+            #collisiom
+
+            if self.player_rect.colliderect(self.enemy_rect):
+                self.gameActive = False
+
+        elif (self.gameActive == False):
+            self.home.homeScreen(self.screen, self.font)
+
+    
+
+
+game = runner()
+game.game_loop()
+
+
+
+
+
+
+
